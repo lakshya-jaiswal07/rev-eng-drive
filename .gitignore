@@ -1,0 +1,26 @@
+# python
+__pycache__/
+*.py[cod]
+.venv/
+.venv-fdb/
+.voices/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# node
+node_modules/
+dist/
+*.local
+
+# env & editors
+.env
+.env.*
+!.env.example
+.DS_Store
+.idea/
+.vscode/
+server/data/
+
+# typescript build cache
+*.tsbuildinfo

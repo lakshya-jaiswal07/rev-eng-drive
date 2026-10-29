@@ -1,0 +1,439 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   Design tokens.
+
+   Structure borrowed from the LastChat web UI (oklch tokens, generous
+   radii, a sidebar/panel split), retuned around a coral accent on cool
+   ink so the interruption state has somewhere loud to live.
+   ------------------------------------------------------------------ */
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: oklch(0.975 0.004 85);
+  --surface: oklch(1 0 0);
+  --panel: oklch(0.988 0.003 264);
+  --elevated: oklch(1 0 0);
+  --foreground: oklch(0.175 0.008 270);
+  --muted: oklch(0.55 0.016 266);
+  --subtle: oklch(0.93 0.006 264);
+  --line: oklch(0.898 0.008 264);
+
+  --accent: oklch(0.648 0.196 28.5);
+  --accent-soft: oklch(0.955 0.028 40);
+  --accent-foreground: oklch(0.99 0.004 40);
+
+  --live: oklch(0.63 0.152 156);
+  --live-soft: oklch(0.955 0.04 156);
+  --warn: oklch(0.72 0.152 78);
+  --warn-soft: oklch(0.962 0.045 84);
+  --info: oklch(0.6 0.148 258);
+  --info-soft: oklch(0.955 0.03 258);
+  --danger: oklch(0.585 0.212 27);
+  --gold: oklch(0.62 0.104 82);
+  --gold-soft: oklch(0.955 0.03 88);
+
+  /* Saturated data fills, borrowed from the LastChat statistics screen: big
+     numbers sitting on a solid colour rather than a tinted border. */
+  --fill-teal: oklch(0.74 0.128 175);
+  --fill-teal-ink: oklch(0.24 0.05 175);
+  --fill-blue: oklch(0.72 0.122 245);
+  --fill-blue-ink: oklch(0.22 0.05 245);
+  --fill-violet: oklch(0.71 0.128 300);
+  --fill-violet-ink: oklch(0.22 0.05 300);
+  --fill-amber: oklch(0.82 0.135 78);
+  --fill-amber-ink: oklch(0.26 0.05 78);
+  --fill-slate: oklch(0.88 0.006 264);
+  --fill-slate-ink: oklch(0.26 0.01 264);
+  --heat-0: oklch(0.90 0.006 264);
+
+  --radius-panel: 18px;
+  --radius-card: 14px;
+  --radius-item: 10px;
+  --radius-pill: 999px;
+
+  --ring: color-mix(in oklab, var(--accent) 45%, transparent);
+  --shadow-soft: 0 1px 2px oklch(0.2 0.02 266 / 0.05), 0 8px 24px oklch(0.2 0.02 266 / 0.06);
+  --shadow-lift: 0 2px 4px oklch(0.2 0.02 266 / 0.06), 0 18px 48px oklch(0.2 0.02 266 / 0.12);
+}
+
+.dark {
+  /* Near-black, very slightly cool. Pure #000 crushes the panel hierarchy;
+     this keeps three readable steps of depth while still reading as black. */
+  --background: oklch(0.085 0.003 270);
+  --surface: oklch(0.128 0.004 270);
+  --panel: oklch(0.118 0.004 270);
+  --elevated: oklch(0.165 0.005 270);
+
+  /* Bone rather than white. Warm text on cold black is what stops a dark UI
+     looking like a terminal. */
+  --foreground: oklch(0.945 0.008 85);
+  --muted: oklch(0.615 0.012 80);
+  --subtle: oklch(0.165 0.005 270);
+  --line: oklch(0.245 0.006 270);
+
+  --accent: oklch(0.672 0.163 34);
+  --accent-soft: oklch(0.24 0.055 34);
+  --accent-foreground: oklch(0.98 0.01 40);
+
+  /* Champagne: the quiet signature that carries the "expensive" read. */
+  --gold: oklch(0.845 0.088 88);
+  --gold-soft: oklch(0.25 0.035 88);
+
+  --live: oklch(0.755 0.098 168);
+  --live-soft: oklch(0.225 0.035 168);
+  --warn: oklch(0.815 0.098 84);
+  --warn-soft: oklch(0.245 0.038 84);
+  --info: oklch(0.735 0.082 250);
+  --info-soft: oklch(0.225 0.035 250);
+  --danger: oklch(0.655 0.175 25);
+
+  /* Jewel tones, low chroma. Saturated primaries are what make a dashboard
+     look like a template. */
+  --fill-teal: oklch(0.715 0.085 176);
+  --fill-teal-ink: oklch(0.14 0.02 176);
+  --fill-blue: oklch(0.675 0.082 248);
+  --fill-blue-ink: oklch(0.13 0.02 248);
+  --fill-violet: oklch(0.665 0.086 305);
+  --fill-violet-ink: oklch(0.13 0.02 305);
+  --fill-amber: oklch(0.805 0.092 82);
+  --fill-amber-ink: oklch(0.17 0.025 82);
+  --fill-slate: oklch(0.255 0.008 270);
+  --fill-slate-ink: oklch(0.93 0.008 85);
+  --heat-0: oklch(0.155 0.005 270);
+
+  --shadow-soft: 0 1px 2px oklch(0 0 0 / 0.5), 0 10px 30px oklch(0 0 0 / 0.42);
+  --shadow-lift: 0 2px 6px oklch(0 0 0 / 0.55), 0 22px 60px oklch(0 0 0 / 0.55);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-panel: var(--panel);
+  --color-elevated: var(--elevated);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-line: var(--line);
+
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-live: var(--live);
+  --color-live-soft: var(--live-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-danger: var(--danger);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+
+  --color-fill-teal: var(--fill-teal);
+  --color-fill-teal-ink: var(--fill-teal-ink);
+  --color-fill-blue: var(--fill-blue);
+  --color-fill-blue-ink: var(--fill-blue-ink);
+  --color-fill-violet: var(--fill-violet);
+  --color-fill-violet-ink: var(--fill-violet-ink);
+  --color-fill-amber: var(--fill-amber);
+  --color-fill-amber-ink: var(--fill-amber-ink);
+  --color-fill-slate: var(--fill-slate);
+  --color-fill-slate-ink: var(--fill-slate-ink);
+
+  --radius-panel: var(--radius-panel);
+  --radius-card: var(--radius-card);
+  --radius-item: var(--radius-item);
+  --radius-pill: var(--radius-pill);
+
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Instrument Serif", ui-serif, Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --shadow-soft: var(--shadow-soft);
+  --shadow-lift: var(--shadow-lift);
+}
+
+/* ------------------------------------------------------------------
+   Stage colours.
+
+   Each phase of a turn gets its own hue, so the pipeline reads as a
+   journey rather than one green bar creeping along.
+   ------------------------------------------------------------------ */
+:root {
+  --stage-listening: var(--fill-blue);
+  --stage-planning: var(--fill-violet);
+  --stage-retrieving: var(--fill-teal);
+  --stage-reasoning: var(--fill-amber);
+  --stage-responding: var(--live);
+}
+
+* {
+  border-color: var(--line);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  background-image:
+    radial-gradient(1100px 520px at 18% -12%, color-mix(in oklab, var(--gold) 6%, transparent), transparent 68%),
+    radial-gradient(900px 460px at 88% 4%, color-mix(in oklab, var(--accent) 5%, transparent), transparent 70%);
+  background-attachment: fixed;
+  color: var(--foreground);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.006em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* The page itself never scrolls; the transcript and rails do. */
+body {
+  overflow: hidden;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--accent) 30%, transparent);
+}
+
+.scrollable {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.scrollable::-webkit-scrollbar {
+  width: 10px;
+}
+.scrollable::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+.scrollable::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+  background-clip: content-box;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Caret that sits at the end of a streaming message. */
+@keyframes caret-blink {
+  0%, 45% { opacity: 1; }
+  55%, 100% { opacity: 0.15; }
+}
+.stream-caret {
+  display: inline-block;
+  width: 0.5ch;
+  height: 1.05em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  border-radius: 2px;
+  background: var(--accent);
+  animation: caret-blink 1s steps(1, end) infinite;
+}
+
+/* The "agent is live" pulse on the stage chip. */
+@keyframes halo {
+  0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--live) 45%, transparent); }
+  70% { box-shadow: 0 0 0 9px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.pulse-live {
+  animation: halo 1.8s ease-out infinite;
+}
+
+@keyframes halo-accent {
+  0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 50%, transparent); }
+  70% { box-shadow: 0 0 0 11px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.pulse-accent {
+  animation: halo-accent 1.4s ease-out infinite;
+}
+
+@keyframes wave {
+  0%, 100% { transform: scaleY(0.35); }
+  50% { transform: scaleY(1); }
+}
+.wave-bar {
+  animation: wave 0.9s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* ------------------------------------------------------------------
+   Surface treatment
+   ------------------------------------------------------------------ */
+
+/* A faint film of grain over the whole page. Flat fills read as
+   synthetic; a little noise gives the panels something to sit on. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.16;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/* A coloured spine instead of a full border: less boxed-in, and the hue
+   tells you what kind of section you are looking at. */
+.spine {
+  position: relative;
+  padding-left: 0.75rem;
+}
+.spine::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.15rem;
+  bottom: 0.15rem;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--spine-color, var(--line));
+}
+
+/* Interrupted answers get a cut across them - the motif of the whole app. */
+.cut-stripe {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    color-mix(in oklab, var(--accent) 12%, transparent) 0 6px,
+    transparent 6px 14px
+  );
+}
+
+@keyframes filler-dots {
+  0%, 80%, 100% { opacity: 0.25; transform: translateY(0); }
+  40% { opacity: 1; transform: translateY(-2px); }
+}
+.filler-dot {
+  animation: filler-dots 1.2s ease-in-out infinite;
+}
+
+@keyframes sweep {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(300%); }
+}
+.sweep::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--foreground) 12%, transparent), transparent);
+  animation: sweep 1.6s ease-in-out infinite;
+}
+
+
+/* ------------------------------------------------------------------
+   Editorial type
+   ------------------------------------------------------------------ */
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.012em;
+  font-feature-settings: "lnum" 1;
+}
+
+/* Micro-labels: small, wide, quiet. The letterspacing is doing most of the
+   work - it is what separates a label from body text without a box. */
+.eyebrow {
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+}
+
+/* Hairline rules instead of borders wherever a divider will do. */
+.hairline {
+  border-color: color-mix(in oklab, var(--line) 80%, transparent);
+}
+
+/* A single warm keyline along the top of a card: the whole "chic" read comes
+   from restraint here, so it is one pixel and one colour. */
+.keyline {
+  position: relative;
+  overflow: hidden;
+}
+.keyline::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--keyline-color, var(--gold)) 70%, transparent) 22%,
+    color-mix(in oklab, var(--keyline-color, var(--gold)) 70%, transparent) 78%,
+    transparent
+  );
+}
+
+.grain-off body::after { opacity: 0; }
+
+/* -- Drive route map (RouteMap.tsx): line styles follow the theme ---------- */
+.drive-map .leaflet-container { background: var(--subtle); font: inherit; }
+/* OpenStreetMap tiles are light; in dark mode they are inverted to match. */
+.dark .drive-map .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.88) saturate(0.7); }
+.drive-map .dm-line { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.drive-map .dm-route { stroke: var(--info); stroke-opacity: 0.95; }
+.drive-map .dm-route-casing { stroke: var(--panel); stroke-opacity: 0.9; }
+.drive-map .dm-guess { stroke: var(--muted); stroke-opacity: 0.8; stroke-dasharray: 8 10; }
+.drive-map .dm-dropped { stroke: var(--accent); stroke-opacity: 0.55; stroke-dasharray: 3 9; }
+.drive-map .dm-stale { stroke: var(--warn); stroke-opacity: 0.85; stroke-dasharray: 10 8; }
+.drive-map .dm-dot { stroke: var(--panel); fill-opacity: 1; }
+.drive-map .dm-dot-origin { fill: var(--foreground); }
+.drive-map .dm-dot-dest { fill: var(--info); }
+.drive-map .dm-dot-guess { fill: var(--muted); }
+.drive-map .dm-dot-dropped { fill: var(--accent); fill-opacity: 0.7; }
+.drive-map .dm-tip {
+  background: var(--panel); color: var(--foreground); border: 1px solid var(--line);
+  border-radius: 8px; padding: 2px 8px; font-size: 12px; box-shadow: var(--shadow-lift);
+}
+.drive-map .dm-tip::before { display: none; }
+.drive-map .dm-stop {
+  transform: translate(-50%, -50%); white-space: nowrap; display: inline-block;
+  background: var(--warn); color: #1a1405; border-radius: 999px; padding: 2px 8px;
+  font-size: 11px; font-weight: 600; box-shadow: 0 1px 4px rgb(0 0 0 / 0.3);
+}
+.drive-map .dm-legend {
+  display: flex; flex-wrap: wrap; gap: 4px 10px; max-width: 70%;
+  background: color-mix(in oklab, var(--panel) 88%, transparent); border: 1px solid var(--line);
+  border-radius: 10px; padding: 6px 10px; font-size: 10.5px; color: var(--muted);
+}
+.drive-map .dm-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.drive-map .dm-key { display: inline-block; width: 18px; border-top: 3px solid; }
+.drive-map .dm-key-guess { border-color: var(--muted); border-top-style: dashed; }
+.drive-map .dm-key-dropped { border-color: var(--accent); border-top-style: dotted; }
+.drive-map .dm-key-stale { border-color: var(--warn); border-top-style: dashed; }
+.drive-map .dm-key-route { border-color: var(--info); }
+.drive-map .leaflet-control-attribution { background: color-mix(in oklab, var(--panel) 85%, transparent); color: var(--muted); }
+.drive-map .leaflet-control-attribution a { color: var(--info); }
