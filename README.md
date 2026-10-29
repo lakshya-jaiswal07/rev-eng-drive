@@ -1,5 +1,7 @@
 # RouteVoice
 
+[![CI](https://github.com/lakshya-jaiswal07/rev-eng-drive/actions/workflows/ci.yml/badge.svg)](https://github.com/lakshya-jaiswal07/rev-eng-drive/actions/workflows/ci.yml)
+
 **A voice assistant for setting up a car trip that you can talk over, correct mid-sentence, and that never starts navigation twice.**
 
 Built for **ACE Club - Reverse Engineering**, domain **Transportation and Mobility**.
@@ -11,7 +13,17 @@ Built for **ACE Club - Reverse Engineering**, domain **Transportation and Mobili
 | Built from | Scratch. No Google code, APIs or SDKs; Maps was studied only from the outside, as a user |
 | Runs | No API keys, in Chrome or Edge. The server works offline; the map tiles (OpenStreetMap) and Chrome's speech recognition need internet |
 
-> **Team:** _add team name and members_
+**Team MATAR PANEER**, M S Ramaiah Institute of Technology
+
+| Member |
+|---|
+| Lakshya Jaiswal |
+| P Nishant |
+| Lucky Preetham Raj B R |
+| Joanna Mariya James |
+
+How each evaluation criterion is checked: [docs/VALIDATION.md](docs/VALIDATION.md).
+Latest scenario results: [docs/measurements.md](docs/measurements.md).
 
 ---
 
@@ -162,8 +174,12 @@ Open <http://localhost:8000>.
 **Tests:**
 
 ```bash
-make test    # 442 tests: gazetteer, understanding, runtime guarantees, the /ws/drive socket, BACKSPACE
+make test      # 443 tests: gazetteer, understanding, runtime guarantees, the /ws/drive socket, BACKSPACE
+make measure   # the evaluation scenarios end to end, 5 runs each -> docs/measurements.md
 ```
+
+Both run on every push (GitHub Actions). What each test proves, criterion by
+criterion: [docs/VALIDATION.md](docs/VALIDATION.md).
 
 ---
 
