@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Car, LogOut, Mic, MicOff, Navigation, Send, Square, Volume2, VolumeX, Wifi, WifiOff } from "lucide-react";
 import { Logo } from "~/components/Logo";
+import { ThemeToggle } from "~/components/ThemeToggle";
 import { Badge, Button, Panel, SectionLabel } from "~/components/ui/primitives";
 import { useAuth } from "~/lib/auth";
 import { cn } from "~/lib/utils";
@@ -278,6 +279,7 @@ export function DriveView() {
                 <WifiOff size={11} /> {status}
               </Badge>
             )}
+            <ThemeToggle />
             <Button variant="ghost" size="icon" onClick={() => setVoiceOut(!voiceOut)} aria-label={voiceOut ? "Mute the agent" : "Unmute the agent"}>
               {voiceOut ? <Volume2 size={16} /> : <VolumeX size={16} />}
             </Button>

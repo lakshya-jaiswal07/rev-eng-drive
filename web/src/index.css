@@ -437,3 +437,36 @@ body::after {
 .drive-map .dm-key-route { border-color: var(--info); }
 .drive-map .leaflet-control-attribution { background: color-mix(in oklab, var(--panel) 85%, transparent); color: var(--muted); }
 .drive-map .leaflet-control-attribution a { color: var(--info); }
+
+/* ------------------------------------------------------------------
+   Landing scene: a day drive in the light theme, a night drive in the
+   dark one. Declared after the palettes so `.dark` wins in dark mode.
+   ------------------------------------------------------------------ */
+:root {
+  --sky-top: oklch(0.78 0.08 232);
+  --sky-bottom: oklch(0.95 0.035 75);
+  --orb: oklch(0.95 0.13 92);
+  --orb-glow: oklch(0.95 0.13 92 / 0.45);
+  --skyline: oklch(0.7 0.035 245);
+  --window-opacity: 0;
+  --stars: 0;
+  --road: oklch(0.44 0.006 260);
+  --road-edge: oklch(0.66 0.006 260);
+  --lane: oklch(0.97 0.02 95);
+  --beam-opacity: 0;
+  --band-end: oklch(0.92 0.045 45);
+}
+.dark {
+  --sky-top: oklch(0.14 0.03 265);
+  --sky-bottom: oklch(0.1 0.012 270);
+  --orb: oklch(0.93 0.02 90);
+  --orb-glow: oklch(0.93 0.02 90 / 0.18);
+  --skyline: oklch(0.17 0.012 268);
+  --window-opacity: 1;
+  --stars: 1;
+  --road: oklch(0.13 0.004 270);
+  --road-edge: oklch(0.3 0.01 270);
+  --lane: oklch(0.88 0.12 90);
+  --beam-opacity: 1;
+  --band-end: oklch(0.11 0.02 34);
+}

@@ -23,6 +23,7 @@ import {
   Zap,
 } from "lucide-react";
 import { Logo } from "~/components/Logo";
+import { ThemeToggle } from "~/components/ThemeToggle";
 import { useAuth } from "~/lib/auth";
 import { cn } from "~/lib/utils";
 import { Car } from "./Car";
@@ -133,6 +134,7 @@ function Nav({ go, scrolled }: { go: Go; scrolled: boolean }) {
           <a className="hover:text-foreground" href="#questions">Maps vs RouteVoice</a>
         </div>
         <div className="ml-auto flex items-center gap-2">
+          <ThemeToggle />
           {status === "user" ? (
             <button onClick={() => go("drive")} className={pill("solid")}>
               Open RouteVoice <ArrowRight size={15} />
@@ -198,23 +200,24 @@ function Drive({ scroller, go }: { scroller: React.RefObject<HTMLDivElement | nu
     <section ref={track} aria-label="RouteVoice: a car voice assistant you can talk over" className={still ? "relative" : "relative h-[420vh]"}>
       <div className="sticky top-0 h-[100svh] overflow-hidden">
         {/* night sky and city */}
-        <div aria-hidden className="absolute inset-0 bg-[linear-gradient(180deg,oklch(0.14_0.03_265)_0%,oklch(0.1_0.012_270)_55%,var(--background)_100%)]" />
+        <div aria-hidden className="absolute inset-0 bg-[linear-gradient(180deg,var(--sky-top)_0%,var(--sky-bottom)_62%,var(--background)_100%)]" />
+        <div aria-hidden className="absolute right-[12%] top-[14%] h-16 w-16 rounded-full bg-[var(--orb)] shadow-[0_0_80px_30px_var(--orb-glow)] sm:h-20 sm:w-20" />
         <Stars />
         <motion.div aria-hidden style={{ x: skylineX }} className="absolute inset-x-[-10%] bottom-[30%] h-[26%]">
           <Skyline />
         </motion.div>
 
         {/* road */}
-        <div aria-hidden className="absolute inset-x-0 bottom-0 h-[30%] bg-[oklch(0.13_0.004_270)]">
-          <div className="absolute inset-x-0 top-0 h-[3px] bg-[oklch(0.3_0.01_270)]" />
+        <div aria-hidden className="absolute inset-x-0 bottom-0 h-[30%] bg-[var(--road)]">
+          <div className="absolute inset-x-0 top-0 h-[3px] bg-[var(--road-edge)]" />
           <motion.div
             className="absolute inset-x-[-50%] top-[46%] h-[6px] opacity-70"
             style={{
               x: laneX,
-              backgroundImage: "repeating-linear-gradient(90deg, oklch(0.88 0.12 90) 0 70px, transparent 70px 140px)",
+              backgroundImage: "repeating-linear-gradient(90deg, var(--lane) 0 70px, transparent 70px 140px)",
             }}
           />
-          <div className="absolute inset-x-0 bottom-[14%] h-[2px] bg-[oklch(0.3_0.01_270)]" />
+          <div className="absolute inset-x-0 bottom-[14%] h-[2px] bg-[var(--road-edge)]" />
         </div>
 
         {/* headline */}
@@ -241,7 +244,7 @@ function Drive({ scroller, go }: { scroller: React.RefObject<HTMLDivElement | nu
             <Bubble key={s.text} p={p} {...s} still={still} centered />
           ))}
         </div>
-        <motion.div style={{ x: carX, y: bob }} className="absolute bottom-[19%] left-0 w-[clamp(200px,34vw,420px)]">
+        <motion.div style={{ x: carX, y: bob }} className="absolute bottom-[17%] left-0 w-[clamp(230px,38vw,500px)]">
           <div className="hidden sm:block">
             {SAYS.map((s) => (
               <Bubble key={s.text} p={p} {...s} still={still} />
@@ -312,7 +315,7 @@ function Stars() {
     o: 0.25 + ((i * 7) % 10) / 20,
   }));
   return (
-    <svg aria-hidden className="absolute inset-0 h-full w-full" preserveAspectRatio="none">
+    <svg aria-hidden className="absolute inset-0 h-full w-full" preserveAspectRatio="none" style={{ opacity: "var(--stars)" }}>
       {stars.map((s, i) => (
         <circle key={i} cx={`${s.x}%`} cy={`${s.y}%`} r={s.r} fill="white" opacity={s.o} />
       ))}
@@ -325,11 +328,11 @@ function Skyline() {
   return (
     <svg viewBox="0 0 1200 200" preserveAspectRatio="none" className="h-full w-full">
       <path
-        fill="oklch(0.17 0.012 268)"
+        fill="var(--skyline)"
         d="M0 200 V120 h40 v-30 h30 v50 h25 V70 h45 v130 h20 V100 h30 V60 h12 V40 h6 v20 h12 v140 h30 V110 c0-30 60-30 60 0 V200 h20 V80 h40 v120 h25 V95 h35 v-25 h30 v130 h20 V55 h8 V30 h4 v25 h8 v145 h30 V120 h50 V85 h40 v115 h25 V100 h30 c0-28 56-28 56 0 v100 h20 V65 h45 v135 h30 V110 h40 V75 h35 v125 h40 V95 h40 v105 h35 V120 h40 V200 Z"
       />
       {Array.from({ length: 60 }, (_, i) => (
-        <rect key={i} x={20 + ((i * 97) % 1160)} y={90 + ((i * 41) % 90)} width="4" height="5" fill="oklch(0.85 0.12 85)" opacity={0.35 + (i % 3) * 0.2} />
+        <rect key={i} x={20 + ((i * 97) % 1160)} y={90 + ((i * 41) % 90)} width="4" height="5" fill="oklch(0.85 0.12 85)" style={{ opacity: `calc(${0.35 + (i % 3) * 0.2} * var(--window-opacity))` }} />
       ))}
     </svg>
   );
@@ -550,7 +553,7 @@ function Numbers() {
     { value: 7, decimals: 0, unit: " / 7", label: "scenarios pass in all five runs" },
   ];
   return (
-    <section className="border-t border-line/50 bg-[linear-gradient(180deg,var(--background),oklch(0.11_0.02_34))]">
+    <section className="border-t border-line/50 bg-[linear-gradient(180deg,var(--background),var(--band-end))]">
       <div
         className="mx-auto grid max-w-6xl gap-10 py-20 sm:grid-cols-2 lg:grid-cols-4"
         style={{ paddingLeft: "max(16px, env(safe-area-inset-left, 0px))", paddingRight: "max(16px, env(safe-area-inset-right, 0px))" }}
