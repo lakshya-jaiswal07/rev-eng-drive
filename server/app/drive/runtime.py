@@ -55,6 +55,9 @@ from .geo import Place, Route, StopSpec, describe_duration, describe_stop, gazet
 from .understanding import Understanding, matches_removal, understand
 
 _log = logging.getLogger(__name__)
+
+# Spoken when a turn fails unexpectedly; the trip so far is kept as it was.
+ERROR_REPLY = "Sorry, something went wrong on my side. Could you say that again?"
 Emit = Callable[[ServerFrame], Awaitable[None]]
 
 
@@ -285,6 +288,13 @@ class DriveRuntime:
             raise
         except Exception as exc:  # noqa: BLE001
             _log.exception("drive turn %s failed", turn_id)
+            # Never go silent on the driver: say so, keep the trip as it was, keep listening.
+            try:
+                await self._speak(turn_id, ERROR_REPLY)
+            except asyncio.CancelledError:
+                raise
+            except Exception:  # noqa: BLE001
+                _log.exception("drive turn %s: the apology itself failed", turn_id)
             await self.emit(StageFrame(stage=Stage.IDLE, turn_id=turn_id, detail=f"Recovered from an error - {type(exc).__name__}: {exc}"[:200]))
 
     async def _handle(self, u: Understanding, turn_id: str, started: float) -> str:

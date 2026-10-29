@@ -272,6 +272,26 @@ async def test_a_misheard_fragment_gets_a_short_question_not_the_help_text() -> 
     assert car.reply(await car.say("go on")) == "That was everything. Where to next?"
 
 
+async def test_an_unexpected_failure_is_spoken_and_the_trip_survives(monkeypatch: pytest.MonkeyPatch) -> None:
+    from app.drive.runtime import ERROR_REPLY
+
+    car = Car()
+    await car.say("take me to Jaipur")
+    trip = car.rt.route
+
+    async def broken(*_args: Any) -> str:
+        raise RuntimeError("routing service exploded")
+
+    monkeypatch.setattr(car.rt, "_handle", broken)
+    frames = await car.say("add a fuel stop")
+    assert car.reply(frames) == ERROR_REPLY  # the driver hears it, not just a log line
+    assert car.of(frames, "stage")[-1]["stage"] == "idle"  # and it keeps listening
+    assert car.rt.route is trip  # the trip planned before the failure is untouched
+
+    monkeypatch.undo()
+    assert "Jaipur" in car.reply(await car.say("how long will it take"))
+
+
 async def test_a_from_city_counts_even_when_the_destination_is_unknown() -> None:
     car = Car()
     reply = car.reply(await car.say("I want to go from Bangalore to Zzyzx"))
