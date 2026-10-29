@@ -8,6 +8,7 @@ Built for **ACE Club - Reverse Engineering**, domain **Transportation and Mobili
 
 | | |
 |---|---|
+| Live app | <https://routevoice.onrender.com> (Chrome or Edge; free hosting, so the first visit after a quiet spell takes about a minute to wake up) |
 | Closed-source app studied | **Google Maps**: voice trip setup with the built-in assistant (Google Assistant / Gemini in Maps) |
 | Feature recreated | Hands-free trip setup by voice: say a destination, add stops, ask the ETA, start guidance |
 | Built from | Scratch. No Google code, APIs or SDKs; Maps was studied only from the outside, as a user |
