@@ -6,7 +6,7 @@ Actions, `.github/workflows/ci.yml`) and can be re-run locally:
 
 ```bash
 cd server
-python -m pytest tests -q                        # 443 tests
+python -m pytest tests -q                        # 455 tests
 python scripts/measure_scenarios.py --runs 5     # the evaluation scenarios, end to end
 ```
 
@@ -15,20 +15,21 @@ python scripts/measure_scenarios.py --runs 5     # the evaluation scenarios, end
 | # | Criterion | Evidence | How it is checked |
 |---|---|---|---|
 | 1 | Functional Correctness | the evaluation scenarios pass 5/5 runs; 112 Drive tests | automated |
-| 2 | Reverse Engineering Accuracy | Google Maps recordings and analysis (README section 1) | manual, recorded on a phone |
-| 3 | Improvement & Practical Value | side-by-side table below: same scenario, Maps vs RouteVoice | automated (RouteVoice) + manual (Maps) |
+| 2 | Reverse Engineering Accuracy | four tests run on Google Maps and on RouteVoice, with what each did (below and README section 1) | manual, screen-recorded on a phone |
+| 3 | Improvement & Practical Value | side-by-side table below: same test, Maps vs RouteVoice | manual (Maps) + automated (RouteVoice) |
 | 4 | Reliability & Error Handling | failure-path tests listed below | automated |
 | 5 | Interaction & Usability | hands-on checklist below | manual, in Chrome or Edge |
-| 6 | Testing & Validation | this document, CI, 443 tests, scenario runner | automated |
+| 6 | Testing & Validation | this document, CI, 455 tests, scenario runner | automated |
 
 ---
 
 ## 1. Functional Correctness
 
-The feature recreated - voice trip setup - works end to end. The same seven
-scenarios the team recorded on Google Maps are run against RouteVoice through
-the same calls the websocket uses, at the real defaults (a 1.2 s routing
-service, a 70 ms speaking pace). Latest results: [measurements.md](measurements.md).
+The feature recreated - voice trip setup - works end to end. Seven scenarios,
+covering the four Google Maps tests below and three more, are run against
+RouteVoice through the same calls the websocket uses, at the real defaults (a
+1.2 s routing service, a 70 ms speaking pace). Latest results:
+[measurements.md](measurements.md).
 
 | # | Scenario | RouteVoice result (5 runs) |
 |---|---|---|
@@ -51,34 +52,41 @@ Unit coverage of the feature (`server/tests/drive/`):
 
 ## 2. Reverse Engineering Accuracy
 
-Recorded by the team on a phone: Google Maps' voice trip setup, the same seven
-scenarios, with timings read from the screen recordings. Results and analysis
-are in the README, section 1; screenshots in `docs/analysis/`.
+The team asked Google Maps' voice assistant four things, in the same words and
+order, with the screen recorder running, then asked RouteVoice the same.
 
-| # | Scenario | Google Maps (observed) | Evidence |
-|---|---|---|---|
-| 1 | Correction mid-sentence | _fill in_ | _screenshot_ |
-| 2 | Talking over it | _fill in_ | |
-| 3 | "Go on" after the interruption | _fill in_ | |
-| 4 | Adding a stop | _fill in_ | |
-| 5 | ETA while the route loads | _fill in_ | |
-| 6 | "Start navigation" twice | _fill in_ | |
-| 7 | Change while planning | _fill in_ | |
+| # | What we did | What Google Maps did |
+|---|---|---|
+| 1 | *"Take me to Agra"*, then cut in with *"Take me to Jaipur"* while it answered | Ignored the interruption; kept answering for Agra |
+| 2 | *"How long will it take to get there?"*, *"Hold on"* while it answered, then *"Go on"* | Ignored "hold on" and kept speaking |
+| 3 | *"Add a fuel stop on the way"* | Added the stop |
+| 4 | *"Navigate to Agra"* again, for the trip already under way | Restarted navigation and dropped the fuel stop and the other changes made on the way |
 
-Device, app version and assistant used: _fill in_.
+What the recordings show about how Maps' assistant works:
+
+- **It takes strict turns.** While it is speaking it is not listening, so a new
+  destination or "hold on" spoken over it is lost (tests 1 and 2).
+- **Each request is a fresh command.** Asking for the current destination again
+  starts a new trip rather than updating the one under way, so stops added on the
+  way are discarded (test 4).
+
+RouteVoice rebuilds the same feature (destination, stops, ETA, navigation by
+voice) and changes exactly these two behaviours: it listens while it speaks, and
+it keeps the trip as state that a new request updates instead of replacing.
 
 ## 3. Improvement & Practical Value
 
-| Scenario | Google Maps (observed) | RouteVoice (measured) |
+| Test | Google Maps (observed) | RouteVoice (observed and measured) |
 |---|---|---|
-| Correction mid-sentence lands on the right place | _fill in_ | yes, 5/5 |
-| Time from cut-in to speech stopping | _fill in (from video)_ | server: 0.19 ms median; browser voice: read "Stops talking" in the UI |
-| After an interruption, "go on" | _fill in_ | continues from the unheard part, 5/5 |
-| Adding a stop mid-trip | _fill in_ | route recomputed, guidance moved once, 5/5 |
-| Asking while the route is still loading | _fill in_ | answered, 5/5 |
-| "Start navigation" twice | _fill in_ | starts once, 5/5 |
-| First acknowledgement after a request | _fill in_ | under 1 ms server side ("Checking the route to Jaipur...") |
-| Route planning started before the sentence ended | no (one request, then one reply) _- confirm_ | 266 ms saved median, from partial speech |
+| 1. New destination spoken over the answer | ignored | stops and reroutes: *"Okay, not Agra any more. Heading to Jaipur…"* |
+| 2. "Hold on" while it speaks | ignored, kept talking | stops at once (0.19 ms server side, median of 5 runs) and saves a checkpoint |
+| 2. "Go on" afterwards | nothing to resume | resumes from the exact word it was cut off, never from the top (5/5) |
+| 3. Add a fuel stop | added the stop | added by voice; route recomputed; guidance moved to the new route once (5/5) |
+| 4. Ask for the current destination again | restarted navigation, dropped the fuel stop | *"We're already on the way to Agra…"*: no restart, fuel stop kept |
+
+Beyond the four tests, RouteVoice also corrects itself inside one sentence
+(*"Agra… actually no, Jaipur"*), answers while a route is still loading, and
+starts planning before the driver finishes speaking (266 ms head start, median).
 
 Why it matters in a car: every one of these is a moment the driver would
 otherwise look at the screen to fix - cancelling a wrong destination, waiting
@@ -115,8 +123,10 @@ Checked by hand in Chrome and Edge, with headphones:
 
 ## 6. Testing & Validation
 
-- **443 automated tests** (`server/tests/`): 112 for the Drive feature, 331 for
-  BACKSPACE (facts, dependencies, stale detection, at-most-once commits).
+- **455 automated tests** (`server/tests/`): 112 for the Drive feature, 331 for
+  BACKSPACE (facts, dependencies, stale detection, at-most-once commits), 12 for
+  accounts (sign-up, log-in, hashed passwords, sessions, the assistant locked
+  behind a login).
 - **Scenario runner** (`server/scripts/measure_scenarios.py`): the evaluation
   scenarios end to end, exits non-zero if any expected behaviour fails.
 - **CI**: both run on every push, plus a type-checked production build of the web app.

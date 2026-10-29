@@ -38,19 +38,28 @@ talking, or repeat themselves.
 
 ### Reverse-engineering analysis
 
-Observed on the real app (screen recordings in `docs/analysis/`):
+We asked Google Maps' voice assistant and RouteVoice the same four things, in
+the same words and the same order, with the screen recorder running.
 
-| Scenario | What Google Maps did | Evidence |
-|---|---|---|
-| Correction mid-sentence: *"Take me to Agra... actually no, Jaipur"* | _fill in from recording_ | _clip / screenshot_ |
-| Talking over the assistant while it speaks | _fill in_ | |
-| After an interruption: does it resume or restart? | _fill in_ | |
-| Adding a stop during a trip | _fill in_ | |
-| Asking for the ETA while the route is still loading | _fill in_ | |
-| Saying "start navigation" twice | _fill in_ | |
+| # | What we did | What Google Maps did | What RouteVoice did |
+|---|---|---|---|
+| 1 | Said *"Take me to Agra"*, then, while it was still answering, cut in with *"Take me to Jaipur"* | **Ignored the interruption.** It kept answering for Agra and did not act on Jaipur. | **Stopped talking and rerouted:** *"Okay, not Agra any more. Heading to Jaipur, Rajasthan: 292 kilometres, about 5 hours via Alwar."* |
+| 2 | Asked *"How long will it take to get there?"*, said *"Hold on"* while it answered, then later *"Go on"* | **Ignored "hold on"** and carried on speaking. | **Paused at once and saved a checkpoint** at the exact word it was cut off. *"Go on"* resumed from that word, not from the start. |
+| 3 | Said *"Add a fuel stop on the way"* | Added the stop. | Added the stop by voice, recomputed the route and moved guidance to the updated route once: *"Updated the route to Jaipur… I've added a stop for fuel near…"* |
+| 4 | Asked *"Navigate to Agra"* again for the trip already under way | **Restarted navigation and dropped the fuel stop** and the other changes made along the way. | **Kept the trip:** *"We're already on the way to Agra, Uttar Pradesh, about 3 hours 56 minutes to go."* Navigation did not restart, and the fuel stop stayed. |
 
-How we infer the feature works: _summarise the turn-taking behaviour you
-observed (one request -> one reply, cancel or restart on interruption, and so on)._
+**What this tells us about how Maps' assistant works.** It takes strict turns:
+while it is speaking it is not listening for the driver, so an interruption (a new
+destination or "hold on") is simply lost. And each request is handled as a fresh
+command rather than as part of an ongoing trip, so asking for the current
+destination again starts a new trip from scratch and the stops added on the way
+are lost. RouteVoice keeps listening while it speaks, and keeps the trip (destination,
+stops, what has already been said) as state that a new request updates instead of
+replacing.
+
+*Doing test 2 yourself:* the ETA answer is one short sentence, so say "Hold on"
+within the first couple of seconds of it speaking. RouteVoice resumes from the
+words you had not yet heard (the browser reports how much was spoken aloud).
 
 ---
 
@@ -78,10 +87,10 @@ interruptions). Use them for the before/after comparison.
 
 | Measure | Google Maps (observed) | RouteVoice (measured) |
 |---|---|---|
-| Correction mid-sentence lands on the right destination | _fill in_ | yes |
-| Time from cut-in to speech stopping | _fill in_ | _read "Stops talking"_ |
-| After an interruption, "go on" | _fill in_ | resumes from the heard character |
-| "Start navigation" twice | _fill in_ | starts once |
+| New destination spoken over the answer | ignored | acted on: rerouted to Jaipur |
+| "Hold on" while it speaks | ignored, kept talking | stops at once (0.19 ms server side; the "Stops talking" counter shows the browser's time) |
+| "Go on" afterwards | nothing to resume | resumes from the exact word it was cut off |
+| Asking for the current destination again | restarts navigation, drops the fuel stop | keeps the trip and the stop; navigation not restarted |
 
 ---
 
@@ -183,7 +192,7 @@ the service restarts or redeploys.
 **Tests:**
 
 ```bash
-make test      # 443 tests: gazetteer, understanding, runtime guarantees, the /ws/drive socket, BACKSPACE
+make test      # 455 tests: gazetteer, understanding, runtime guarantees, the /ws/drive socket, BACKSPACE, accounts
 make measure   # the evaluation scenarios end to end, 5 runs each -> docs/measurements.md
 ```
 
