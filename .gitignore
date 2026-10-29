@@ -21,3 +21,6 @@ dist/
 
 # typescript build cache
 *.tsbuildinfo
+
+# accounts (SQLite)
+server/data/

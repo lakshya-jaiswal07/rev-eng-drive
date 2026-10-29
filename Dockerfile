@@ -29,7 +29,11 @@ RUN pip install -r requirements.txt
 COPY server/app ./app
 COPY --from=web /web/dist /app/web/dist
 
-RUN useradd --create-home --uid 10001 routevoice
+# Accounts live in server/data (SQLite). On a host without a persistent disk
+# they reset when the container is replaced.
+RUN useradd --create-home --uid 10001 routevoice \
+    && mkdir -p /app/server/data \
+    && chown -R routevoice:routevoice /app/server/data
 USER routevoice
 
 EXPOSE 8000

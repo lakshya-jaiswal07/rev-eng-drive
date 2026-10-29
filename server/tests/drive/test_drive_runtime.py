@@ -178,8 +178,13 @@ async def test_off_topic_questions_use_a_configured_llm() -> None:
     assert car.reply(await car.say("what's the weather like")) == "It looks sunny today."
 
 
-def test_drive_websocket_end_to_end() -> None:
+def test_drive_websocket_end_to_end(monkeypatch: pytest.MonkeyPatch) -> None:
+    import app.main as main_module
+    from app.auth import AuthStore
+
+    monkeypatch.setattr(main_module, "_auth", AuthStore(":memory:"))  # the assistant is behind a login
     with TestClient(app) as client:
+        client.post("/api/auth/signup", json={"name": "Test", "email": "test@example.com", "password": "test-password"})
         with client.websocket_connect("/ws/drive") as ws:
             ready = ws.receive_json()
             assert ready["t"] == "ready" and ready["mode"] == "drive"

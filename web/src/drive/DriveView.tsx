@@ -1,6 +1,8 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import { Car, Mic, MicOff, Navigation, Send, Square, Volume2, VolumeX, Wifi, WifiOff } from "lucide-react";
+import { Car, LogOut, Mic, MicOff, Navigation, Send, Square, Volume2, VolumeX, Wifi, WifiOff } from "lucide-react";
+import { Logo } from "~/components/Logo";
 import { Badge, Button, Panel, SectionLabel } from "~/components/ui/primitives";
+import { useAuth } from "~/lib/auth";
 import { cn } from "~/lib/utils";
 import { useDrive, type ScriptStep } from "./store";
 
@@ -247,6 +249,7 @@ function Conversation() {
 export function DriveView() {
   const { connect, disconnect, status, listening, toggleListening, voiceError, voiceOut, setVoiceOut, say, runScript, scriptRunning, stopScript, bargeIn, speaking, stageDetail } =
     useDrive();
+  const { user, logout } = useAuth();
   const [draft, setDraft] = useState("");
 
   useEffect(() => {
@@ -258,6 +261,9 @@ export function DriveView() {
     <div className="flex h-full flex-col gap-3 p-3">
       <Panel className="shrink-0">
         <header className="flex flex-wrap items-center gap-3 px-5 py-3">
+          <a href="#" aria-label="RouteVoice home" className="shrink-0 rounded-[10px] focus-visible:outline-2 focus-visible:outline-accent">
+            <Logo size={30} />
+          </a>
           <div className="min-w-0">
             <h2 className="display text-base leading-none">RouteVoice</h2>
             <p className="eyebrow mt-1">In-car voice assistant &middot; talk over it any time</p>
@@ -275,6 +281,19 @@ export function DriveView() {
             <Button variant="ghost" size="icon" onClick={() => setVoiceOut(!voiceOut)} aria-label={voiceOut ? "Mute the agent" : "Unmute the agent"}>
               {voiceOut ? <Volume2 size={16} /> : <VolumeX size={16} />}
             </Button>
+            {user ? (
+              <>
+                <span
+                  title={user.email}
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-soft text-xs font-semibold text-accent"
+                >
+                  {user.name.trim().charAt(0).toUpperCase() || "?"}
+                </span>
+                <Button variant="ghost" size="icon" aria-label="Log out" title="Log out" onClick={() => void logout()}>
+                  <LogOut size={15} />
+                </Button>
+              </>
+            ) : null}
           </div>
         </header>
       </Panel>

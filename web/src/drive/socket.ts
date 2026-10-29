@@ -1,3 +1,4 @@
+import { useAuth } from "~/lib/auth";
 import type { DriveClientFrame, DriveFrame } from "./types";
 
 /** The /ws/drive socket, reconnecting with exponential backoff. */
@@ -28,8 +29,13 @@ export class DriveSocket {
         /* one malformed frame is not worth dropping the drive */
       }
     };
-    socket.onclose = () => {
+    socket.onclose = (event) => {
       this.onStatus("closed");
+      if (event.code === 4401) {
+        // no valid session: stop retrying and send the user back to log in
+        this.closedByUs = true;
+        useAuth.getState().expired();
+      }
       if (this.closedByUs) return;
       const delay = Math.min(800 * 2 ** this.retries++, 8000);
       setTimeout(() => this.connect(), delay);

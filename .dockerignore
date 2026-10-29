@@ -22,3 +22,7 @@ server/requirements-dev.txt
 **/.DS_Store
 .idea/
 .vscode/
+
+# accounts (SQLite) never go into an image
+server/data/
+*.sqlite3

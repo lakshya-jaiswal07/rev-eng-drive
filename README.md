@@ -171,6 +171,14 @@ Open <http://localhost:8000>.
 | `DRIVE_ROUTE_LATENCY_MS` | 1200 | simulated routing-service delay, so the background planning is visible |
 | `DRIVE_TOKEN_DELAY_MS` | 70 | pace of the streamed reply |
 | `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL` | unset | optional: an OpenAI-compatible model (e.g. Groq) for questions that are not about driving. Without one the assistant says *"I'm your driving assistant"*. |
+| `AUTH_REQUIRED` | 1 | the assistant needs an account; `0` opens it for local development |
+| `AUTH_DB_PATH` | `server/data/users.sqlite3` | where accounts are stored |
+
+**Accounts:** the landing page at `/` is public; the assistant (`#drive`) needs an
+account. Passwords are hashed with scrypt and a per-user salt; the browser holds a
+random session token in an HttpOnly cookie, and the server stores only its SHA-256.
+On a host without a persistent disk (Render's free plan), accounts reset whenever
+the service restarts or redeploys.
 
 **Tests:**
 

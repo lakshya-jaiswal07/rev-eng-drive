@@ -22,6 +22,13 @@ def _env_int(key: str, default: int) -> int:
         return default
 
 
+def _env_bool(key: str, default: bool) -> bool:
+    raw = os.environ.get(key)
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+
 _UNSET = object()
 
 
@@ -57,6 +64,10 @@ class Settings:
     gemini_model: str = field(
         default_factory=lambda: os.environ.get("GEMINI_MODEL", "gemini-3.8-flash")
     )
+
+    # --- accounts -------------------------------------------------------
+    # The assistant needs a logged-in user (app/auth.py); 0 opens it for local development.
+    auth_required: bool = field(default_factory=lambda: _env_bool("AUTH_REQUIRED", True))
 
     cors_origins: tuple[str, ...] = (
         "http://localhost:5173",
