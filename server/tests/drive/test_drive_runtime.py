@@ -381,3 +381,63 @@ async def test_stop_at_a_town_with_no_trip_yet_goes_there() -> None:
     car = Car(start="Pune")
     await car.say("stop at Lonavala")
     assert car.rt.destination.name == "Lonavla" and car.rt.route.stops == []
+
+
+# -- the four tests run on Google Maps and on RouteVoice ------------------------------
+# Same words and order as the team's recordings; Maps failed 1, 2 and 4 (see README).
+
+
+async def _until_speaking(car: Car, mark: int) -> None:
+    for _ in range(500):
+        if car.of(car.frames[mark:], "stage", stage="responding"):
+            return
+        await asyncio.sleep(0.01)
+    raise AssertionError("the agent never started speaking")
+
+
+async def test_maps_1_a_new_destination_spoken_over_the_answer_reroutes() -> None:
+    car = Car(token_delay_ms=20)
+    mark = len(car.frames)
+    await car.rt.on_final("take me to Agra")
+    await _until_speaking(car, mark)
+    await asyncio.sleep(0.05)  # a few words into the answer about Agra...
+    await car.rt.on_final("take me to Jaipur")  # ...the driver cuts in
+    await car.rt._turn_task
+    frames = car.frames[mark:]
+    agent = car.of(frames, "message", role="agent")
+    assert agent[0]["status"] == "interrupted"  # it stopped talking about Agra
+    assert agent[-1]["content"].startswith("Okay, not Agra any more. Heading to Jaipur, Rajasthan")
+    assert car.rt.navigation["destination"] == "Jaipur, Rajasthan"
+
+
+async def test_maps_2_hold_on_keeps_a_checkpoint_and_go_on_resumes_from_it() -> None:
+    car = Car(token_delay_ms=20)
+    await car.say("take me to Jaipur")
+    answer = car.reply(await car.say("how long will it take to get there"))
+    assert answer == "About 5 hours to Jaipur, Rajasthan."
+    await car.rt.interrupt(heard_chars=8)  # the browser had spoken "About 5 " aloud
+    frames = await car.say("hold on")
+    assert car.of(frames, "stage", stage="interrupted")  # waits, says nothing
+    assert not car.of(frames, "message", role="agent")
+    frames = await car.say("go on")
+    assert car.of(frames, "message", role="agent", status="resumed")[0]["content"] == "hours to Jaipur, Rajasthan."
+
+
+async def test_maps_3_a_fuel_stop_is_added_by_voice_and_guidance_moves_once() -> None:
+    car = Car()
+    await car.say("take me to Jaipur")
+    frames = await car.say("add a fuel stop on the way")
+    assert len(car.rt.route.stops) == 1 and "added a stop for fuel" in car.reply(frames)
+    assert [f["args"]["to"] for f in car.of(frames, "tool", name="start_navigation", status="ok")] == ["Jaipur, Rajasthan"]
+    assert car.of(frames, "drive_event", kind="route_updated")
+
+
+async def test_maps_4_asking_for_the_same_place_again_keeps_the_trip_and_its_stops() -> None:
+    car = Car()
+    await car.say("take me to Agra")
+    await car.say("add a fuel stop on the way")
+    stops = list(car.rt.route.stops)
+    frames = await car.say("navigate to Agra")
+    assert not car.of(frames, "tool", name="start_navigation")  # navigation is not restarted
+    assert car.reply(frames).startswith("We're already on the way to Agra, Uttar Pradesh")
+    assert car.rt.route.stops == stops  # the fuel stop is kept

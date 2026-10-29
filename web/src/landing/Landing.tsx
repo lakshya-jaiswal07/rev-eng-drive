@@ -549,7 +549,7 @@ function Numbers() {
   const stats = [
     { value: 0.19, decimals: 2, unit: " ms", label: "to stop speaking after a cut-in (server side)" },
     { value: 266, decimals: 0, unit: " ms", label: "head start: planning begins before you finish" },
-    { value: 443, decimals: 0, unit: "", label: "automated tests, run on every push" },
+    { value: 459, decimals: 0, unit: "", label: "automated tests, run on every push" },
     { value: 7, decimals: 0, unit: " / 7", label: "scenarios pass in all five runs" },
   ];
   return (

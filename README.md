@@ -192,7 +192,7 @@ the service restarts or redeploys.
 **Tests:**
 
 ```bash
-make test      # 455 tests: gazetteer, understanding, runtime guarantees, the /ws/drive socket, BACKSPACE, accounts
+make test      # 459 tests: gazetteer, understanding, runtime guarantees, the /ws/drive socket, BACKSPACE, accounts
 make measure   # the evaluation scenarios end to end, 5 runs each -> docs/measurements.md
 ```
 

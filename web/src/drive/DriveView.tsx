@@ -11,8 +11,57 @@ import { useDrive, type ScriptStep } from "./store";
 const RouteMap = lazy(() => import("./RouteMap").then((m) => ({ default: m.RouteMap })));
 import type { RouteInfo } from "./types";
 
+type Script = { id: string; title: string; hint: string; steps: ScriptStep[] };
+
+/**
+ * The four tests the team ran on Google Maps and on RouteVoice, as one-click demos.
+ * Each sets up its own trip first. The waits cover the 1.2 s routing step and the
+ * spoken reply, so a setup step has finished before the next words; only the
+ * words meant to cut in (tests 1 and 2) arrive while it is still speaking.
+ */
+const TESTS: Script[] = [
+  {
+    id: "test-cut-in",
+    title: "1. Cut in with a new destination",
+    hint: "“Take me to Agra”, then “Take me to Jaipur” while it answers: it stops and reroutes",
+    steps: [{ say: "take me to Agra" }, { wait: 2600 }, { say: "take me to Jaipur" }],
+  },
+  {
+    id: "test-hold-on",
+    title: "2. Hold on, then go on",
+    hint: "Ask the ETA, say “hold on” mid-answer, then “go on”: it resumes from the word it stopped at",
+    steps: [
+      { say: "take me to Jaipur" },
+      { wait: 9000 },
+      { say: "how long will it take to get there" },
+      { wait: 700 },
+      { say: "hold on" },
+      { wait: 1800 },
+      { say: "go on" },
+    ],
+  },
+  {
+    id: "test-fuel",
+    title: "3. Add a fuel stop",
+    hint: "The stop is added by voice and guidance moves to the new route once",
+    steps: [{ say: "take me to Jaipur" }, { wait: 9000 }, { say: "add a fuel stop on the way" }],
+  },
+  {
+    id: "test-same-place",
+    title: "4. Ask for the same place again",
+    hint: "After adding a fuel stop, “navigate to Agra” keeps the trip and the stop; nothing restarts",
+    steps: [
+      { say: "take me to Agra" },
+      { wait: 9000 },
+      { say: "add a fuel stop on the way" },
+      { wait: 10000 },
+      { say: "navigate to Agra" },
+    ],
+  },
+];
+
 /** One-click demos, spoken word by word through the same path as the microphone. */
-const SCRIPTS: { id: string; title: string; hint: string; steps: ScriptStep[] }[] = [
+const SCRIPTS: Script[] = [
   {
     id: "correction",
     title: "Change of mind mid-sentence",
@@ -50,6 +99,20 @@ const SCRIPTS: { id: string; title: string; hint: string; steps: ScriptStep[] }[
     steps: [{ say: "take me to Mumbai" }, { wait: 150 }, { say: "how long will it take" }],
   },
 ];
+
+function ScriptButton({ script, disabled, onRun }: { script: Script; disabled: boolean; onRun: (steps: ScriptStep[]) => void }) {
+  return (
+    <button
+      disabled={disabled}
+      onClick={() => onRun(script.steps)}
+      className="rounded-[var(--radius-item)] border border-line/60 px-3 py-2 text-left hover:bg-subtle disabled:opacity-40"
+      data-script={script.id}
+    >
+      <div className="text-xs font-medium">{script.title}</div>
+      <div className="text-[11px] leading-snug text-muted">{script.hint}</div>
+    </button>
+  );
+}
 
 function duration(min: number) {
   if (min < 60) return `${min} min`;
@@ -304,19 +367,16 @@ export function DriveView() {
         <div className="flex min-h-0 flex-col gap-3 overflow-y-auto">
           <TripCard />
           <Panel className="p-4">
-            <SectionLabel>Try it</SectionLabel>
+            <SectionLabel>The four tests</SectionLabel>
+            <div className="mt-2 flex flex-col gap-1.5">
+              {TESTS.map((s) => (
+                <ScriptButton key={s.id} script={s} disabled={scriptRunning || status !== "open"} onRun={runScript} />
+              ))}
+            </div>
+            <SectionLabel className="mt-4">More to try</SectionLabel>
             <div className="mt-2 flex flex-col gap-1.5">
               {SCRIPTS.map((s) => (
-                <button
-                  key={s.id}
-                  disabled={scriptRunning || status !== "open"}
-                  onClick={() => runScript(s.steps)}
-                  className="rounded-[var(--radius-item)] border border-line/60 px-3 py-2 text-left hover:bg-subtle disabled:opacity-40"
-                  data-script={s.id}
-                >
-                  <div className="text-xs font-medium">{s.title}</div>
-                  <div className="text-[11px] leading-snug text-muted">{s.hint}</div>
-                </button>
+                <ScriptButton key={s.id} script={s} disabled={scriptRunning || status !== "open"} onRun={runScript} />
               ))}
               {scriptRunning ? (
                 <Button size="sm" variant="outline" onClick={stopScript}>

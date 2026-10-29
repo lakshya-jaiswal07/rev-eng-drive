@@ -6,7 +6,7 @@ Actions, `.github/workflows/ci.yml`) and can be re-run locally:
 
 ```bash
 cd server
-python -m pytest tests -q                        # 455 tests
+python -m pytest tests -q                        # 459 tests
 python scripts/measure_scenarios.py --runs 5     # the evaluation scenarios, end to end
 ```
 
@@ -14,12 +14,12 @@ python scripts/measure_scenarios.py --runs 5     # the evaluation scenarios, end
 
 | # | Criterion | Evidence | How it is checked |
 |---|---|---|---|
-| 1 | Functional Correctness | the evaluation scenarios pass 5/5 runs; 112 Drive tests | automated |
+| 1 | Functional Correctness | the evaluation scenarios pass 5/5 runs; 116 Drive tests | automated |
 | 2 | Reverse Engineering Accuracy | four tests run on Google Maps and on RouteVoice, with what each did (below and README section 1) | manual, screen-recorded on a phone |
 | 3 | Improvement & Practical Value | side-by-side table below: same test, Maps vs RouteVoice | manual (Maps) + automated (RouteVoice) |
 | 4 | Reliability & Error Handling | failure-path tests listed below | automated |
 | 5 | Interaction & Usability | hands-on checklist below | manual, in Chrome or Edge |
-| 6 | Testing & Validation | this document, CI, 455 tests, scenario runner | automated |
+| 6 | Testing & Validation | this document, CI, 459 tests, scenario runner | automated |
 
 ---
 
@@ -74,6 +74,14 @@ RouteVoice rebuilds the same feature (destination, stops, ETA, navigation by
 voice) and changes exactly these two behaviours: it listens while it speaks, and
 it keeps the trip as state that a new request updates instead of replacing.
 
+The four tests are also automated, in the same words and order, so CI checks
+RouteVoice's side on every push: `test_maps_1_a_new_destination_spoken_over_the_answer_reroutes`,
+`test_maps_2_hold_on_keeps_a_checkpoint_and_go_on_resumes_from_it`,
+`test_maps_3_a_fuel_stop_is_added_by_voice_and_guidance_moves_once` and
+`test_maps_4_asking_for_the_same_place_again_keeps_the_trip_and_its_stops`
+(`server/tests/drive/test_drive_runtime.py`). In the app they are one click each,
+under **The four tests**.
+
 ## 3. Improvement & Practical Value
 
 | Test | Google Maps (observed) | RouteVoice (observed and measured) |
@@ -123,7 +131,7 @@ Checked by hand in Chrome and Edge, with headphones:
 
 ## 6. Testing & Validation
 
-- **455 automated tests** (`server/tests/`): 112 for the Drive feature, 331 for
+- **459 automated tests** (`server/tests/`): 116 for the Drive feature, 331 for
   BACKSPACE (facts, dependencies, stale detection, at-most-once commits), 12 for
   accounts (sign-up, log-in, hashed passwords, sessions, the assistant locked
   behind a login).
