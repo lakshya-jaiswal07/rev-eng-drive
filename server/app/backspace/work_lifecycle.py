@@ -1,11 +1,11 @@
 """The in-flight work execution lifecycle (Phase M1-B).
 
-A generic, benchmark-agnostic state machine for what a ``WorkItem`` is
+A generic, domain-agnostic state machine for what a ``WorkItem`` is
 *doing* right now - pending, running, completed, stale, cancelled, failed -
 layered on top of the fact-change validity states Phase 2-6 already gave it
 (``PENDING``/``STALE``/``INVALIDATED``/``RETRACTED``/``RECOMPUTED``). Nothing
 here knows what kind of work a ``WorkItem`` represents, what tool produced
-it, or what benchmark (if any) is driving it - every function takes a plain
+it, or what scenario (if any) is driving it - every function takes a plain
 ``WorkItem`` and an attempt number, nothing shaped like a scenario id, a
 transcript, or a tool name.
 
@@ -180,8 +180,8 @@ def is_result_current(work: WorkItem, attempt: int) -> bool:
 
     Purely structural: compares ``attempt`` against ``work.execution_attempt``
     and checks ``work.status`` is one that means "this attempt's output can
-    be trusted." Never inspects text, a tool name, or anything scenario- or
-    benchmark-shaped - this is the advisory counterpart to the exceptions
+    be trusted." Never inspects text, a tool name, or anything
+    scenario-shaped - this is the advisory counterpart to the exceptions
     ``complete_work``/``fail_work`` raise, for a caller that wants to check
     before acting rather than handle a raised error after the fact.
     """

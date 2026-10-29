@@ -18,7 +18,7 @@ from .providers import build_provider
 from .schemas import ErrorFrame, ServerFrame, Stage, StageFrame
 
 app = FastAPI(
-    title="Interject Drive",
+    title="RouteVoice",
     description="An in-car voice assistant you can talk over.",
     version="1.0.0",
 )

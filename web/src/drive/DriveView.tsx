@@ -4,7 +4,7 @@ import { Badge, Button, Panel, SectionLabel } from "~/components/ui/primitives";
 import { cn } from "~/lib/utils";
 import { useDrive, type ScriptStep } from "./store";
 
-// The map library is only downloaded when Drive is opened, not with the assistant.
+// The map library is downloaded separately, so the first screen loads fast.
 const RouteMap = lazy(() => import("./RouteMap").then((m) => ({ default: m.RouteMap })));
 import type { RouteInfo } from "./types";
 
@@ -259,7 +259,7 @@ export function DriveView() {
       <Panel className="shrink-0">
         <header className="flex flex-wrap items-center gap-3 px-5 py-3">
           <div className="min-w-0">
-            <h2 className="display text-base leading-none">Drive</h2>
+            <h2 className="display text-base leading-none">RouteVoice</h2>
             <p className="eyebrow mt-1">In-car voice assistant &middot; talk over it any time</p>
           </div>
           <div className="ml-auto flex items-center gap-2">

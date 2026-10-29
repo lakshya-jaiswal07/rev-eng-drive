@@ -1,4 +1,4 @@
-/** Frames of the /ws/drive protocol (the in-car use-case extension). */
+/** Frames of the /ws/drive protocol. */
 
 export interface PlaceInfo {
   id: string;

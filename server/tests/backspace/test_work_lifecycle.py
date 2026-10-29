@@ -129,7 +129,7 @@ def test_7_current_result_is_accepted():
 
 def test_result_acceptance_never_inspects_text_or_names():
     """The guard is purely structural - it takes a WorkItem and an int,
-    nothing text- or benchmark-shaped."""
+    nothing text- or scenario-shaped."""
     work = WorkItem(kind="anything at all, even a fake scenario name", work_id="W1")
     attempt = start_work(work)
     assert is_result_current(work, attempt) is True
@@ -367,11 +367,11 @@ def test_15_session_isolation_via_graph_reset_only_affects_its_own_core():
 
 
 # ===========================================================================
-# no false generic-ness leaks: WorkItem never references a benchmark concept
+# no false generic-ness leaks: WorkItem never references a scenario concept
 # ===========================================================================
 
 
-def test_work_lifecycle_module_takes_no_benchmark_shaped_arguments():
+def test_work_lifecycle_module_takes_no_scenario_shaped_arguments():
     """Structural guard: every public function here takes only a WorkItem
     and, where relevant, a plain int attempt/optional output - never a
     scenario id, tool name allowlist, or transcript."""

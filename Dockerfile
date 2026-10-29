@@ -1,10 +1,10 @@
-# Interject Drive in one image: the React frontend is built in a Node stage and
+# RouteVoice in one image: the React frontend is built in a Node stage and
 # served by the FastAPI backend on a single port, so pages, API and websockets
 # share one address (see server/app/main.py).
 #
-#   docker build -t interject-drive .
-#   docker run --rm -p 8000:8000 interject-drive                     # offline, no keys
-#   docker run --rm -p 8000:8000 -e LLM_API_KEY=gsk_... ... interject-drive   # off-topic questions via a real model
+#   docker build -t routevoice .
+#   docker run --rm -p 8000:8000 routevoice                     # offline, no keys
+#   docker run --rm -p 8000:8000 -e LLM_API_KEY=gsk_... ... routevoice   # off-topic questions via a real model
 #
 # Then open http://localhost:8000.
 
@@ -29,8 +29,8 @@ RUN pip install -r requirements.txt
 COPY server/app ./app
 COPY --from=web /web/dist /app/web/dist
 
-RUN useradd --create-home --uid 10001 interject
-USER interject
+RUN useradd --create-home --uid 10001 routevoice
+USER routevoice
 
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \

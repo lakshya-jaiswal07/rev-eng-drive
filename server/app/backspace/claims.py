@@ -1,15 +1,13 @@
 """Claim and Evidence data models, and the claim-ledger lifecycle functions.
 
 A ``Claim`` is one unit of the answer the agent actually said (or is about to
-say) - the structured counterpart of a bulleted, cited line like the ones
-``providers/mock.py`` already produces (``"- sentence  [doc_id]"``). Giving
-it its own lifecycle is what lets BACKSPACE retract *part* of an answer
+say) - the structured counterpart of a bulleted, cited line
+(``"- sentence  [doc_id]"``). Giving it its own lifecycle is what lets BACKSPACE retract *part* of an answer
 instead of the whole thing.
 
-``Evidence`` mirrors the plain dict shape already produced by
-``runtime.py``'s ``_hits_to_evidence`` (``doc_id`` / ``title`` / ``snippet`` /
-``source``) so BACKSPACE can wrap that output without retrieval.py or
-runtime.py changing at all.
+``Evidence`` mirrors a plain dict shape (``doc_id`` / ``title`` /
+``snippet`` / ``source``) so BACKSPACE can wrap a caller's evidence without
+that caller changing at all.
 
 Phase 7 adds the lifecycle functions - ``mark_claim_spoken``,
 ``invalidate_claim``, ``require_claim_retractable``, ``supersede_claim``,

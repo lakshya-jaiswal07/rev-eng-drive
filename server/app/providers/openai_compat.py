@@ -30,14 +30,14 @@ class OpenAICompatProvider:
             steps.append(f"Honour constraints: {', '.join(request.constraints)}")
         if request.facts:
             steps.append(f"Ground in {len(request.facts)} session fact(s)")
-        steps.append(f"Call {settings.llm_model} with {len(request.evidence)} grounded passage(s)")
+        steps.append(f"Call {settings.llm_model}")
         steps.append("Stream the answer, staying interruptible")
         return steps
 
     def _messages(self, request: GenerationRequest) -> list[dict[str, str]]:
         evidence = "\n\n".join(
             f"[{item['doc_id']}] {item['title']}: {item['snippet']}" for item in request.evidence
-        ) or "(no matching passages)"
+        )
         messages = [{"role": "system", "content": SYSTEM}]
         messages.extend(request.context)
         user = (
@@ -47,10 +47,9 @@ class OpenAICompatProvider:
         if request.facts:
             facts_lines = "\n".join(f"  {k}: {v}" for k, v in request.facts.items())
             user += f"Session facts (canonical):\n{facts_lines}\n"
-        user += (
-            f"Evidence (Interject Travel demo knowledge base - fictional sample data):\n{evidence}\n\n"
-            f"User just said: {request.utterance}"
-        )
+        if evidence:
+            user += f"Evidence:\n{evidence}\n"
+        user += f"\nUser just said: {request.utterance}"
         if request.notice:
             user += (
                 "\n\nThe safety harness refused part of this request. Tell the user plainly, "

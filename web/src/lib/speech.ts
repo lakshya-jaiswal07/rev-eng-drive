@@ -1,5 +1,5 @@
 /**
- * Real voice for the assistant and the in-car agent, with the browser's own
+ * Real voice for the in-car agent, with the browser's own
  * speech engines (no API key, no quota): SpeechRecognition for the user,
  * speechSynthesis for the agent. Chrome and Edge support both.
  */

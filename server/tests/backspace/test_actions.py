@@ -271,7 +271,7 @@ def test_12_reset_clears_action_state():
 
 
 # ===========================================================================
-# 13/14. no natural-language matching, no benchmark-specific logic
+# 13/14. no natural-language matching, no scenario-specific logic
 # ===========================================================================
 
 
@@ -295,8 +295,8 @@ def test_13_no_natural_language_matching():
     assert commit_params == ["self", "work", "attempt", "result"]
 
 
-def test_14_no_benchmark_specific_logic():
-    """No scenario id, FDB identifier, or hardcoded allowlist gates
+def test_14_no_scenario_specific_logic():
+    """No scenario id or hardcoded allowlist gates
     acceptance - only structured execution state (attempt/status)."""
     core = BackspaceCore()
     work = core.register_work(WorkItem(kind="totally_unseen_scenario_xyz", work_id="W1"))
@@ -314,7 +314,7 @@ def test_14_no_benchmark_specific_logic():
 
     # Collect every docstring node (module/class/function) so it can be
     # excluded below - this checks the module's actual *logic* for a
-    # benchmark/scenario literal, not its own prose explaining why there
+    # scenario literal, not its own prose explaining why there
     # isn't one (which necessarily has to say those words).
     docstrings: set[str] = set()
     for node in ast.walk(tree):
@@ -327,9 +327,9 @@ def test_14_no_benchmark_specific_logic():
         node.value for node in ast.walk(tree)
         if isinstance(node, ast.Constant) and isinstance(node.value, str)
     } - docstrings
-    # No non-docstring literal in the module looks like a benchmark/scenario
+    # No non-docstring literal in the module looks like a scenario
     # identifier - i.e. nothing in the module's actual logic gates on one.
-    assert not any("fdb" in s.lower() or "scenario" in s.lower() for s in literals)
+    assert not any("scenario" in s.lower() for s in literals)
 
 
 # ===========================================================================

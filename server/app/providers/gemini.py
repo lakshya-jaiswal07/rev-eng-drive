@@ -55,7 +55,7 @@ class GeminiProvider:
             steps.append(f"Honour constraints: {', '.join(request.constraints)}")
         if request.facts:
             steps.append(f"Ground in {len(request.facts)} session fact(s)")
-        steps.append(f"Call Gemini ({self.model}) with {len(request.evidence)} grounded passage(s)")
+        steps.append(f"Call Gemini ({self.model})")
         steps.append("Stream the answer, staying interruptible")
         return steps
 
@@ -90,19 +90,20 @@ class GeminiProvider:
         # Build current prompt turn
         evidence = "\n\n".join(
             f"[{item['doc_id']}] {item['title']}: {item['snippet']}" for item in request.evidence
-        ) or "(no matching passages)"
+        )
 
         facts_block = ""
         if request.facts:
             facts_lines = "\n".join(f"  {k}: {v}" for k, v in request.facts.items())
             facts_block = f"Session facts (canonical):\n{facts_lines}\n"
+        evidence_block = f"Evidence:\n{evidence}\n" if evidence else ""
 
         user = (
             f"Active goal: {request.goal}\n"
             f"Constraints: {', '.join(request.constraints) or 'none'}\n"
             f"{facts_block}"
-            f"Evidence (Interject Travel demo knowledge base - fictional sample data):\n{evidence}\n\n"
-            f"User just said: {request.utterance}"
+            f"{evidence_block}"
+            f"\nUser just said: {request.utterance}"
         )
         if request.notice:
             user += (

@@ -1,10 +1,10 @@
-"""The in-car voice agent loop (the Theme 05 use-case extension).
+"""The in-car voice agent loop.
 
-One ``DriveRuntime`` per car (websocket). It speaks the same frame protocol as
-the main agent - stage/token/message/filler/spec/tool/metric/checkpoint - plus
+One ``DriveRuntime`` per car (websocket). Its frames are
+stage/token/message/filler/spec/tool/metric/checkpoint, plus
 ``drive`` (vehicle and route state) and ``drive_event`` (what BACKSPACE did).
 
-What it demonstrates, in the guide's own terms:
+What it demonstrates:
 
 * Stay responsive: every request is acknowledged within milliseconds, without
   claiming anything is done ("Checking the route to Jaipur..."), and questions

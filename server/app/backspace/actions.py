@@ -1,6 +1,6 @@
 """Exactly-once (at-most-once) commit guard for state-changing actions (Phase M1-C).
 
-The updated Theme 05 guide's requirement, restated precisely: when the user
+The requirement, restated precisely: when the user
 changes their mind mid-flight, (1) the stale execution must be discarded,
 (2) a corrected execution must be plannable with the new arguments, and (3)
 the underlying state-changing effect (a booking, a purchase, any tool call
@@ -22,8 +22,8 @@ go stale is a fact it depends on changing (``invalidation.invalidate_many``)
 a monotonic version number over "the arguments this work item is currently
 running with"; hashing the arguments separately would be a second versioning
 system tracking the same fact this one already tracks, which is exactly the
-duplication the brief asks this phase to avoid. A raw transcript, a
-benchmark scenario id, or a tool name never enters the identity - only two
+duplication this phase avoids. A raw transcript, a
+scenario id, or a tool name never enters the identity - only two
 integers/strings already produced by structured execution state.
 
 Guarantee, stated precisely because the brief asks for that: this is
@@ -107,7 +107,7 @@ class ActionLedger:
     """Session-scoped, in-process at-most-once commit guard.
 
     Owns exactly one mapping: ``action_id -> ActionCommit``. Nothing here
-    inspects ``work.kind``, a tool name, an argument's text, or a benchmark
+    inspects ``work.kind``, a tool name, an argument's text, or a scenario
     identifier - every decision is made from ``work.execution_attempt``/
     ``work.status`` (via ``is_result_current``) and the id already computed
     from them. Two ``ActionLedger``s never share a commit - the same

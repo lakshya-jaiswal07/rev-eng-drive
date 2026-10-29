@@ -1,4 +1,4 @@
-# Interject Drive
+# RouteVoice
 
 **A voice assistant for setting up a car trip that you can talk over, correct mid-sentence, and that never starts navigation twice.**
 
@@ -46,7 +46,7 @@ observed (one request -> one reply, cancel or restart on interruption, and so on
 A from-scratch rebuild of voice trip setup, plus the behaviour we wanted when
 someone interrupts or corrects themselves.
 
-| Capability | How Interject Drive does it |
+| Capability | How RouteVoice does it |
 |---|---|
 | **Understands self-corrections** | Rule-based understanding of fillers, false starts and *"actually / no wait / instead / not X, Y"*. *"Agra... actually no, Jaipur"* acts only on Jaipur. |
 | **Starts before you finish** | Route planning starts from partial speech, before the sentence ends. If the guess turns out wrong it is thrown away, so it never adds delay. |
@@ -63,7 +63,7 @@ interruptions). Use them for the before/after comparison.
 
 ### Before / after
 
-| Measure | Google Maps (observed) | Interject Drive (measured) |
+| Measure | Google Maps (observed) | RouteVoice (measured) |
 |---|---|---|
 | Correction mid-sentence lands on the right destination | _fill in_ | yes |
 | Time from cut-in to speech stopping | _fill in_ | _read "Stops talking"_ |
@@ -144,8 +144,8 @@ asking while it plans.
 **Docker** (one port, frontend served by the backend):
 
 ```bash
-docker build -t interject-drive .
-docker run --rm -p 8000:8000 interject-drive
+docker build -t routevoice .
+docker run --rm -p 8000:8000 routevoice
 ```
 
 Open <http://localhost:8000>.
@@ -181,11 +181,6 @@ make test    # 442 tests: gazetteer, understanding, runtime guarantees, the /ws/
 
 ## Credits
 
-- Drive was first built as the use-case extension of **Interject**, our entry for
-  Samsung PRISM GenAI Hackathon 2026 (Theme 05, Interruptible Real-Time Agents):
-  <https://github.com/joannamariyajames/interjectsamsung>. This repository holds
-  that feature only. Original Interject contributors: lakshya-jaiswal07,
-  Pranav Agrawal, joanna, Nishant.
 - Place data: [GeoNames](https://www.geonames.org), CC BY 4.0 (`server/app/drive/data/`).
 - Map tiles in the UI: OpenStreetMap contributors, via Leaflet.
 - License: MIT (see `LICENSE`).

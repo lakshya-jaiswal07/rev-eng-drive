@@ -1,4 +1,4 @@
-"""The in-car voice agent (use-case extension): responsiveness, async work and
+"""The in-car voice agent: responsiveness, async work and
 clean recovery, asserted on the frames a client actually receives."""
 
 from __future__ import annotations

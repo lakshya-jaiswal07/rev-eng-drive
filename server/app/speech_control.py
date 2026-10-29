@@ -1,4 +1,4 @@
-"""Spoken control phrases shared by the assistant and the in-car agent.
+"""Spoken control phrases for the in-car agent.
 
 "Hold on" or "stop" said over the agent is the barge-in itself, not a new
 request: the agent goes quiet, keeps what was not yet heard, and waits for

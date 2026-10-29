@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
-const stored = localStorage.getItem("interject-theme");
+const stored = localStorage.getItem("routevoice-theme");
 const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
 document.documentElement.classList.toggle("dark", stored ? stored === "dark" : !prefersLight);
 

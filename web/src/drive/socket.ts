@@ -1,6 +1,6 @@
 import type { DriveClientFrame, DriveFrame } from "./types";
 
-/** The /ws/drive socket, with the same reconnect backoff as the main agent's. */
+/** The /ws/drive socket, reconnecting with exponential backoff. */
 export class DriveSocket {
   private socket: WebSocket | null = null;
   private retries = 0;

@@ -2,8 +2,6 @@
 __pycache__/
 *.py[cod]
 .venv/
-.venv-fdb/
-.voices/
 venv/
 .pytest_cache/
 .ruff_cache/
@@ -20,7 +18,6 @@ dist/
 .DS_Store
 .idea/
 .vscode/
-server/data/
 
 # typescript build cache
 *.tsbuildinfo

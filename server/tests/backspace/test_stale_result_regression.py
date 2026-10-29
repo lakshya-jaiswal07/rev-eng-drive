@@ -1,10 +1,8 @@
 """M1-D3 — synthetic stale-result / duplicate-commit regression.
 
-This is a BACKSPACE Core safety/extension test, not an FDB-v3 benchmark
-behavior. FDB-v3's own reference implementation never exercises this race
-(see the M1-D audit: its mock tool calls execute synchronously, back-to-back,
-inside one blocking call - there is no window in which staleness could
-actually occur there today). This file proves the race BACKSPACE's own
+This is a BACKSPACE Core safety test: a tool call that runs synchronously,
+back-to-back, inside one blocking call never opens a window for staleness, so
+the race has to be constructed deliberately. This file proves the race BACKSPACE's own
 M1-B (work_lifecycle.py) / M1-C (actions.py) machinery is *built* to guard
 against, using nothing but existing, unmodified BackspaceCore/WorkItem/
 ActionLedger APIs - no BACKSPACE Core file changes with this phase.
