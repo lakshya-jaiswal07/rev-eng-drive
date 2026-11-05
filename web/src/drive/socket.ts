@@ -15,8 +15,45 @@ export class DriveSocket {
   connect() {
     this.closedByUs = false;
     this.onStatus("connecting");
-    const proto = location.protocol === "https:" ? "wss" : "ws";
-    const socket = new WebSocket(`${proto}://${location.host}/ws/drive`);
+    void this.socketUrl().then((url) => {
+      if (url && !this.closedByUs) this.open(url);
+    });
+  }
+
+  /** Same host: the cookie goes along. Another host: trade it for a one-time ticket first. */
+  private async socketUrl(): Promise<string | null> {
+    if (!__BACKEND_URL__) {
+      const proto = location.protocol === "https:" ? "wss" : "ws";
+      return `${proto}://${location.host}/ws/drive`;
+    }
+    const base = __BACKEND_URL__.replace(/^http/, "ws");
+    try {
+      const response = await fetch("/api/auth/ws-ticket", { method: "POST", credentials: "same-origin" });
+      if (response.status === 401) {
+        this.closedByUs = true;
+        this.onStatus("closed");
+        useAuth.getState().expired();
+        return null;
+      }
+      if (!response.ok) throw new Error(String(response.status));
+      const { ticket } = (await response.json()) as { ticket: string };
+      return `${base}/ws/drive?ticket=${encodeURIComponent(ticket)}`;
+    } catch {
+      // backend asleep or unreachable: back off as if the socket had dropped
+      this.onStatus("closed");
+      this.retryLater();
+      return null;
+    }
+  }
+
+  private retryLater() {
+    if (this.closedByUs) return;
+    const delay = Math.min(800 * 2 ** this.retries++, 8000);
+    setTimeout(() => this.connect(), delay);
+  }
+
+  private open(url: string) {
+    const socket = new WebSocket(url);
     this.socket = socket;
     socket.onopen = () => {
       this.retries = 0;
@@ -36,9 +73,7 @@ export class DriveSocket {
         this.closedByUs = true;
         useAuth.getState().expired();
       }
-      if (this.closedByUs) return;
-      const delay = Math.min(800 * 2 ** this.retries++, 8000);
-      setTimeout(() => this.connect(), delay);
+      this.retryLater();
     };
     socket.onerror = () => socket.close();
   }

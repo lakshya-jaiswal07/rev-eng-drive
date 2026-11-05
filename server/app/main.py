@@ -121,9 +121,20 @@ async def me(request: Request) -> dict[str, Any]:
     return {"user": user.to_dict()}
 
 
+@app.post("/api/auth/ws-ticket")
+async def ws_ticket(request: Request) -> dict[str, Any]:
+    """A one-time pass for /ws/drive, for pages that can't send the cookie there."""
+    user = current_user(request)
+    if user is None:
+        raise HTTPException(status_code=401, detail={"code": "auth_required", "message": "Please log in."})
+    return {"ticket": auth_store().issue_ticket(user)}
+
+
 async def _reject_unauthenticated(socket: WebSocket) -> bool:
-    """Accept, explain and close (code 4401) a socket without a valid session."""
-    if not settings.auth_required or auth_store().user_for(socket.cookies.get(COOKIE_NAME)):
+    """Accept, explain and close (code 4401) a socket without a valid session or ticket."""
+    store = auth_store()
+    if (not settings.auth_required or store.user_for(socket.cookies.get(COOKIE_NAME))
+            or store.redeem_ticket(socket.query_params.get("ticket"))):
         return False
     await socket.accept()
     await socket.send_text(json.dumps({"t": "error", "code": "auth_required", "message": "Please log in."}))

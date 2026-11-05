@@ -27,6 +27,7 @@ from typing import Any
 
 COOKIE_NAME = "routevoice_session"
 SESSION_TTL_S = 7 * 24 * 3600
+TICKET_TTL_S = 60
 _SCRYPT = {"n": 2**14, "r": 8, "p": 1, "dklen": 32}
 _EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 _MAX_FAILURES, _FAILURE_WINDOW_S = 5, 300
@@ -84,6 +85,7 @@ class AuthStore:
         self._db = sqlite3.connect(path, check_same_thread=False)
         self._lock = threading.Lock()
         self._failures: dict[str, list[float]] = {}
+        self._tickets: dict[str, tuple[User, float]] = {}
         with self._lock, self._db:
             self._db.executescript(
                 """
@@ -165,3 +167,25 @@ class AuthStore:
         if token:
             with self._lock, self._db:
                 self._db.execute("DELETE FROM sessions WHERE token_hash = ?", (_token_hash(token),))
+
+    # -- socket tickets ----------------------------------------------------------
+    # A page served from another site (the Vercel build) cannot send the session
+    # cookie to this server's socket. It asks for a ticket over /api (proxied, so
+    # the cookie goes along) and hands it to the socket instead: single use,
+    # short-lived, kept in memory only.
+    def issue_ticket(self, user: User) -> str:
+        ticket = secrets.token_urlsafe(32)
+        now = time.time()
+        with self._lock:
+            self._tickets = {k: v for k, v in self._tickets.items() if v[1] > now}
+            self._tickets[_token_hash(ticket)] = (user, now + TICKET_TTL_S)
+        return ticket
+
+    def redeem_ticket(self, ticket: str | None) -> User | None:
+        if not ticket:
+            return None
+        with self._lock:
+            entry = self._tickets.pop(_token_hash(ticket), None)
+        if entry is None or entry[1] < time.time():
+            return None
+        return entry[0]

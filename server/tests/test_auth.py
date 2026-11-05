@@ -111,6 +111,28 @@ def test_the_app_is_locked_until_you_log_in(store) -> None:
             assert ws.receive_json()["t"] == "ready"
 
 
+def test_a_ticket_opens_the_socket_once_without_the_cookie(store) -> None:
+    with TestClient(main.app) as anon:
+        assert anon.post("/api/auth/ws-ticket").status_code == 401
+    with TestClient(main.app) as client:
+        signup(client)
+        ticket = client.post("/api/auth/ws-ticket").json()["ticket"]
+    with TestClient(main.app) as elsewhere:  # another site: no cookie, only the ticket
+        with elsewhere.websocket_connect(f"/ws/drive?ticket={ticket}") as ws:
+            assert ws.receive_json()["t"] == "ready"
+        with elsewhere.websocket_connect(f"/ws/drive?ticket={ticket}") as ws:  # used up
+            assert ws.receive_json()["code"] == "auth_required"
+        with elsewhere.websocket_connect("/ws/drive?ticket=forged") as ws:
+            assert ws.receive_json()["code"] == "auth_required"
+
+
+def test_tickets_expire(store, monkeypatch) -> None:
+    user = store.create_user("Asha", "asha@example.com", PASSWORD)
+    ticket = store.issue_ticket(user)
+    monkeypatch.setattr(time, "time", lambda real=time.time: real() + 61)
+    assert store.redeem_ticket(ticket) is None
+
+
 def test_auth_can_be_switched_off_for_local_development(store, monkeypatch) -> None:
     monkeypatch.setattr(main, "settings", main.settings.__class__(auth_required=False))
     with TestClient(main.app) as anon:
